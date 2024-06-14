@@ -15,23 +15,26 @@ along with this software (see the LICENSE.md file). If not, see
 <entity-facade-xml type="seed">
 
     <!-- NOTE: subscreen configuration is now in the MoquiConf.xml file instead of DB records
-<moqui.screen.SubscreensItem screenLocation="component://webroot/screen/webroot/apps.xml" subscreenName="start" menuTitle="start"
-        menuIndex="97" menuInclude="Y" subscreenLocation="component://start/screen/App.xml"/>
+<moqui.screen.SubscreensItem screenLocation="component://webroot/screen/webroot/apps.xml" subscreenName="ai" menuTitle="ai"
+        menuIndex="97" menuInclude="Y" subscreenLocation="component://ai/screen/App.xml"/>
 -->
+    <!-- TODO: Replace privateKey with your Open AI API key -->
+    <moqui.service.message.SystemMessageRemote sendUrl="https://api.openai.com/v1/embeddings" description="Open AI Embedding" lastUpdatedStamp="1718337375052" systemMessageRemoteId="OpenAiEmbedding"
+            privateKey=""/>
 
-    <!-- Artifact group for all of the start application via the App screen (the root screen for the app) -->
-    <moqui.security.ArtifactGroup artifactGroupId="start_APP" description="start App (via root screen)"/>
-    <moqui.security.ArtifactGroupMember artifactGroupId="start_APP" artifactTypeEnumId="AT_XML_SCREEN"
-            inheritAuthz="Y" artifactName="component://start/screen/App.xml"/>
+    <!-- Artifact group for all of the ai application via the App screen (the root screen for the app) -->
+    <moqui.security.ArtifactGroup artifactGroupId="ai_APP" description="ai App (via root screen)"/>
+    <moqui.security.ArtifactGroupMember artifactGroupId="ai_APP" artifactTypeEnumId="AT_XML_SCREEN"
+            inheritAuthz="Y" artifactName="component://ai/screen/App.xml"/>
     <!-- Full permissions for the ADMIN user group -->
-    <moqui.security.ArtifactAuthz artifactAuthzId="start_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="start_APP"
+    <moqui.security.ArtifactAuthz artifactAuthzId="ai_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="ai_APP"
             authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
 
-    <!-- Artifact group for all of the start REST API via the start resource (the root resource) -->
-    <moqui.security.ArtifactGroup artifactGroupId="start_API" description="start REST API (via root resource)"/>
-    <moqui.security.ArtifactGroupMember artifactGroupId="start_API" artifactTypeEnumId="AT_REST_PATH"
-            inheritAuthz="Y" artifactName="/start"/>
+    <!-- Artifact group for all of the ai REST API via the ai resource (the root resource) -->
+    <moqui.security.ArtifactGroup artifactGroupId="ai_API" description="ai REST API (via root resource)"/>
+    <moqui.security.ArtifactGroupMember artifactGroupId="ai_API" artifactTypeEnumId="AT_REST_PATH"
+            inheritAuthz="Y" artifactName="/ai"/>
     <!-- Full permissions for the ADMIN user group -->
-    <moqui.security.ArtifactAuthz artifactAuthzId="startAPI_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="start_API"
+    <moqui.security.ArtifactAuthz artifactAuthzId="aiAPI_AUTHZ_ALL" userGroupId="ADMIN" artifactGroupId="ai_API"
             authzTypeEnumId="AUTHZT_ALWAYS" authzActionEnumId="AUTHZA_ALL"/>
 </entity-facade-xml>

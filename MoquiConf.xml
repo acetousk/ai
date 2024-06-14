@@ -3,7 +3,7 @@
 <moqui-conf xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/moqui-conf-3.xsd">
     <screen-facade>
         <screen location="component://webroot/screen/webroot/apps.xml">
-            <subscreens-item name="start" menu-title="start" menu-index="97" location="component://start/screen/App.xml"/>
+            <subscreens-item name="ai" menu-title="ai" menu-index="97" location="component://ai/screen/App.xml"/>
         </screen>
     </screen-facade>
 </moqui-conf>

@@ -1,7 +1,7 @@
 
 # runtime added files
 build
-lib/start-*.jar
+lib/ai-*.jar
 
 # IntelliJ IDEA files
 .idea/

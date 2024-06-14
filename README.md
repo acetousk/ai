@@ -1,6 +1,6 @@
-## A start component
+## A ai component
 
-start Component with: 
+ai Component with: 
 
 - entities
 - data
@@ -10,4 +10,4 @@ start Component with:
 
 To install run (with moqui-framework):
 
-    $ ./gradlew getComponent -Pcomponent=start
+    $ ./gradlew getComponent -Pcomponent=ai

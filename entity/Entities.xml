@@ -15,8 +15,46 @@ along with this software (see the LICENSE.md file). If not, see
 <entities xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/entity-definition-3.xsd">
 
     <!-- ========================================================= -->
-    <!-- start -->
+    <!-- ai -->
     <!-- ========================================================= -->
 
+    <entity entity-name="TableEmbedding" package="ai.sql">
+        <field name="tableId" type="id" is-pk="true"/>
+        <field name="databaseName" type="text-short"/>
+        <field name="tableName" type="text-short"/>
+        <field name="tableText" type="text-very-long"/>
+        <field name="location" type="text-medium"/>
+        <field name="response" type="binary-very-long"/>
+        <field name="embedding" type="binary-very-long"/>
+        <field name="modelEnumId" type="id"/>
+
+        <relationship type="one" title="Model" related="Enumeration" short-alias="model">
+            <key-map field-name="modelEnumId" related="enumId"/></relationship>
+
+        <seed-data>
+            <moqui.basic.EnumerationType description="AI Models" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Whisper-1" enumId="whisper-1" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Babbage-002" enumId="babbage-002" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="DALL-E-2" enumId="dall-e-2" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-16k" enumId="gpt-3.5-turbo-16k" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="TTS-1-HD-1106" enumId="tts-1-hd-1106" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="TTS-1-HD" enumId="tts-1-hd" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-Instruct-0914" enumId="gpt-3.5-turbo-instruct-0914" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-Instruct" enumId="gpt-3.5-turbo-instruct" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Text-Embedding-3-Small" enumId="text-embedding-3-small" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="TTS-1" enumId="tts-1" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Text-Embedding-3-Large" enumId="text-embedding-3-large" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-1106" enumId="gpt-3.5-turbo-1106" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-0125" enumId="gpt-3.5-turbo-0125" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo" enumId="gpt-3.5-turbo" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-0301" enumId="gpt-3.5-turbo-0301" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="TTS-1-1106" enumId="tts-1-1106" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="DALL-E-3" enumId="dall-e-3" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-16k-0613" enumId="gpt-3.5-turbo-16k-0613" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="GPT-3.5-Turbo-0613" enumId="gpt-3.5-turbo-0613" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Text-Embedding-Ada-002" enumId="text-embedding-ada-002" enumTypeId="AiModel"/>
+            <moqui.basic.Enumeration description="Davinci-002" enumId="davinci-002" enumTypeId="AiModel"/>
+        </seed-data>
+    </entity>
 
 </entities>
