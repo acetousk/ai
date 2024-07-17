@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This software is in the public domain under CC0 1.0 Universal plus a 
+Grant of Patent License.
+
+To the extent possible under law, the author(s) have dedicated all
+copyright and related and neighboring rights to this software to the
+public domain worldwide. This software is distributed without any
+warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication
+along with this software (see the LICENSE.md file). If not, see
+<http://creativecommons.org/publicdomain/zero/1.0/>.
+-->
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/service-definition-3.xsd">
+
+    <!-- ai & Related Services -->
+
+    <!-- Service that gets pointed to a directory for example /home/user/ai/dbs, each directory in there is a database
+    name in each directory is a bunch of ddl sql files for each table in the database. Iterate through each file in the
+    directory that ends in .sql and create a Table entry for each file where the tableName is the file name - .sql and
+    the tableText is the contents of the file, the model is a parameter, but starts out with text-embedding-3-small -->
+    <service verb="get" noun="TablesFromDirectory">
+        <in-parameters>
+            <parameter name="directory" required="true" default-value="/home/user/ai/dbs"/>
+            <parameter name="modelEnumId" required="true" default-value="text-embedding-3-small"/>
+            <parameter name="databaseNameList" type="List" default="['work_effort']"/>
+            <parameter name="systemMessageRemoteId" required="true" default-value="OpenAiEmbedding"/>
+        </in-parameters>
+        <out-parameters>
+            <parameter name="tableIdList" type="List"/>
+        </out-parameters>
+        <actions>
+            <!-- Initialize variables -->
+            <set field="tableList" from="[]"/>
+            <set field="tableIdList" from="[]"/>
+            <set field="directoryReference" from="ec.resource.getLocationReference(directory)"/>
+
+            <entity-find-one entity-name="SystemMessageRemote" value-field="systemMessageRemote" auto-field-map="[systemMessageRemoteId:systemMessageRemoteId]"/>
+            <if condition="!systemMessageRemote"><return type="danger" error="true" message="Could not find SystemMessageRemote with ID ${systemMessageRemoteId}"/></if>
+
+            <iterate list="directoryReference.getDirectoryEntries()" entry="databaseDirectory">
+                <set field="databaseName" from="databaseDirectory.fileName"/>
+                <iterate list="databaseDirectory.getDirectoryEntries()" entry="tableFile">
+                    <set field="tableName" from="tableFile.fileName - '.sql'"/>
+                    <if condition="tableFile.fileName.endsWith('.sql') &amp;&amp; (databaseNameList == [] || databaseNameList.contains(tableName))">
+                        <set field="respMap" from="[:]"/>
+<!--                        <script><![CDATA[-->
+<!--                            org.moqui.util.RestClient restClient = ec.service.rest().method(org.moqui.util.RestClient.POST)-->
+<!--                                    .uri(systemMessageRemote.sendUrl).addHeader("Content-Type", "application/json")-->
+<!--                                    .addHeader("Authorization", "Bearer ${systemMessageRemote.privateKey}")-->
+<!--                                    .jsonObject([input:"test",model:modelEnumId,encoding_format:"float"])-->
+<!--                            org.moqui.util.RestClient.RestResponse restResponse = restClient.call()-->
+<!--                            respMap = (Map) restResponse.jsonObject()-->
+<!--//                            ec.logger.warn("restResponse ${restResponse.toString()}")-->
+<!--//                            ec.logger.warn("restResponse.statusCode ${restResponse.statusCode}")-->
+<!--//                            ec.logger.warn("context.toString(): ${context.toString()}")-->
+<!--                            if (restResponse.statusCode < 200 || restResponse.statusCode >= 300) {-->
+<!--                                ec.logger.warn("Unsuccessful embedding call from OpenAI: ${respMap}")-->
+<!--                                ec.message.addPublic("Could not get embedding from OpenAI", "warning")-->
+<!--                                ec.message.addError("Could not get embedding from OpenAI")-->
+<!--                                return-->
+<!--                            }-->
+<!--                            ]]></script>-->
+<!--                        <log level="warn" message="respMap: ${respMap}"/>-->
+<!--                        <log level="warn" message="respMap.data ${respMap.data}"/>-->
+<!--                        <log level="warn" message="respMap.data[0] ${respMap.data[0]}"/>-->
+<!--                        <log level="warn" message="respMap.data[0].embedding ${respMap.data[0].embedding}"/>-->
+<!--                        <log level="warn" message="tableFile.getText(): ${tableFile.getText()}"/>-->
+                        <set field="tableLineList" from="tableFile.getText().tokenize('\n')"/>
+                        <set field="tableFileCleanedText" value=""/>
+                        <iterate list="tableLineList" entry="tableLine">
+                            <if condition="tableLine.startsWith('--') || tableLine.startsWith('SET')
+                                || tableLine.startsWith('CREATE INDEX') || tableLine.startsWith('SELECT pg_catalog')
+                                || tableLine.startsWith('OWNER TO')"><continue/></if>
+                            <set field="tableFileCleanedText" from="tableFileCleanedText + (tableLine - 'public.') + '\n'"/>
+                        </iterate>
+<!--                        <log level="warn" message="tableFileCleanedText: ${tableFileCleanedText}"/>-->
+                        <service-call name="create#ai.sql.TableEmbedding" in-map="[
+                            databaseName: databaseName,
+                            tableName: tableName,
+                            tableText: tableFileCleanedText,
+                            location: tableFile.location]" out-map="context"/>
+                        <set field="tableIdList" from="tableIdList + tableId"/>
+                    </if>
+                </iterate>
+            </iterate>
+        </actions>
+    </service>
+
+    <service verb="get" noun="ScriptureReport">
+        <in-parameters>
+
+        </in-parameters>
+        <out-parameters>
+
+        </out-parameters>
+        <actions>
+<!--            <entity-find entity-name="ai.sql.MormonScriptures" list="mormonScripturesList" limit="1100">-->
+            <entity-find entity-name="ai.sql.MormonScriptures" list="mormonScripturesList">
+                <econdition field-name="volumeTitle" value="Book of Mormon"/>
+<!--                <econdition field-name="verseTitle" operator="like" value="%2 Nephi 1%"/>-->
+                <order-by field-name="volumeId,bookId,chapterId,verseId"/>
+            </entity-find>
+<!--            <log level="warn" message="mormonScripturesList: ${mormonScripturesList*.verseTitle}"/>-->
+            <set field="mormonScripturesReportMap" from="[:]"/>
+            <set field="elasticClient" from="ec.factory.elastic.getClient((String) 'default')"/>
+
+            <iterate list="mormonScripturesList" entry="mormonScripture">
+                <log level="warn" message="mormonScripture: ${mormonScripture.volumeTitle} ${mormonScripture.verseTitle}"/>
+                <set field="inputMap" from="['_source':['exclude':
+                        ['volumeSubtitle','volumeLdsUrl','_entity','volumeShortTitle','bookLdsUrl','bookLongTitle','volumeId',
+                        'bookShortTitle','verseShortTitle','bookTitle','scriptureTestEmbedding','volumeTitle','verseId','chapterId',
+                        'verseNumber','chapterNumber','bookId','_index','_id','bookSubtitle']],
+                    'query':['hybrid':['queries':[
+                        ['match':['scriptureText':['query':mormonScripture.scriptureText]]],
+                        ['neural':['scriptureTestEmbedding':['query_text':'${mormonScripture.scriptureText}','model_id':'by3bvJABBw3NiI4nj1ib','k':100]]],]]],
+                    'size':10
+                        ]"/>
+<!--                <log level="warn" message="inputMap: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(inputMap))}"/>-->
+                <set field="productSearchOut" from="elasticClient.search('mormon_scriptures', inputMap)"/>
+<!--                <log level="warn" message="${mormonScripture.verseTitle} productSearchOut: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(productSearchOut))}"/>-->
+<!--                <set field="subMormonScripturesReportList" from="[]"/>-->
+<!--                <iterate list="productSearchOut.hits.hits" entry="productSearchHit">-->
+<!--                    <if condition="productSearchHit._source.verseTitle != mormonScripture.verseTitle">-->
+<!--                        <set field="outputMap" from="[_score:productSearchHit._score]"/>-->
+<!--                        <script>outputMap.putAll(productSearchHit._source)</script>-->
+<!--                        <set field="subMormonScripturesReportList" from="subMormonScripturesReportList + outputMap"/>-->
+<!--                    </if>-->
+<!--                </iterate>-->
+                <set field="maxHitsMap" from="productSearchOut.hits.hits.findAll { it._source.verseTitle != mormonScripture.verseTitle &amp;&amp; it._score.toString().getAt(0)!='-' }.max{ it.score }"/>
+                <if condition="maxHitsMap._score.toString().getAt(0)=='-'">
+                    <log level="warn" message="mormonScripture: ${mormonScripture.volumeTitle} ${mormonScripture.verseTitle} ${mormonScripture.scriptureText}"/>
+                    <log level="warn" message="productSearchOut.hits.hits: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(productSearchOut.hits.hits))}"/>
+<!--                    <log level="warn" message="maxHitsMap: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(maxHitsMap))}"/>-->
+                </if>
+                <set field="subMormonScripturesReportMap" from="[verseTitle:mormonScripture.verseTitle,scriptureText:mormonScripture.scriptureText,maxScore:productSearchOut.hits.max_score,_score:maxHitsMap._score,similarVerseTitle:maxHitsMap._source.verseTitle,similarVolumeLongTitle:maxHitsMap._source.volumeLongTitle,similarScriptureText:maxHitsMap._source.scriptureText,similarPercentOfMax:(maxHitsMap._score/productSearchOut.hits.max_score)*100]"/>
+<!--                <set field="subMormonScripturesReportMap" from="null"/>-->
+                <if condition="subMormonScripturesReportMap._score">
+                    <script>mormonScripturesReportMap[mormonScripture.volumeTitle+' '+mormonScripture.verseTitle]=subMormonScripturesReportMap</script>
+                </if>
+            </iterate>
+<!--            <log level="warn" message="mormonScripturesReportMap: ${groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mormonScripturesReportMap))}"/>-->
+            <script><![CDATA[java.nio.file.Files.write(java.nio.file.Paths.get("/home/user/mormonFullFixed.json"), groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(mormonScripturesReportMap)).getBytes());]]></script>
+
+        </actions>
+    </service>
+
+</services>

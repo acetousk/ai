@@ -22,6 +22,50 @@ along with this software (see the LICENSE.md file). If not, see
     <moqui.service.message.SystemMessageRemote sendUrl="https://api.openai.com/v1/embeddings" description="Open AI Embedding" lastUpdatedStamp="1718337375052" systemMessageRemoteId="OpenAiEmbedding"
             privateKey=""/>
 
+    <dataDocuments dataDocumentId="AiTableEmbedding" indexName="table_embedding" documentName="TableEmbedding"
+            primaryEntityName="ai.sql.TableEmbedding" documentTitle="${tableId}">
+        <fields fieldSeqId="01" fieldPath="tableId"/>
+        <fields fieldSeqId="02" fieldPath="databaseName"/>
+        <fields fieldSeqId="03" fieldPath="tableName"/>
+        <fields fieldSeqId="04" fieldPath="tableText"/>
+        <fields fieldSeqId="05" fieldPath="location"/>
+        <fields fieldSeqId="06" fieldPath="response"/>
+        <fields fieldSeqId="07" fieldPath="embedding"/>
+        <fields fieldSeqId="08" fieldPath="modelEnumId"/>
+    </dataDocuments>
+
+    <dataDocuments dataDocumentId="AiMormonScriptures" indexName="mormon_scriptures" documentName="MormonScriptures"
+            primaryEntityName="ai.sql.MormonScriptures" documentTitle="${volumeId}${bookId}${chapterId}${verseId}">
+        <fields fieldSeqId="01" fieldPath="volumeId"/>
+        <fields fieldSeqId="02" fieldPath="bookId"/>
+        <fields fieldSeqId="03" fieldPath="chapterId"/>
+        <fields fieldSeqId="04" fieldPath="verseId"/>
+        <fields fieldSeqId="05" fieldPath="volumeTitle"/>
+        <fields fieldSeqId="06" fieldPath="bookTitle"/>
+        <fields fieldSeqId="07" fieldPath="volumeLongTitle"/>
+        <fields fieldSeqId="08" fieldPath="bookLongTitle"/>
+        <fields fieldSeqId="09" fieldPath="volumeSubtitle"/>
+        <fields fieldSeqId="10" fieldPath="bookSubtitle"/>
+        <fields fieldSeqId="11" fieldPath="volumeShortTitle"/>
+        <fields fieldSeqId="12" fieldPath="bookShortTitle"/>
+        <fields fieldSeqId="13" fieldPath="volumeLdsUrl"/>
+        <fields fieldSeqId="14" fieldPath="bookLdsUrl"/>
+        <fields fieldSeqId="15" fieldPath="chapterNumber"/>
+        <fields fieldSeqId="16" fieldPath="verseNumber"/>
+        <fields fieldSeqId="17" fieldPath="scriptureText"/>
+        <fields fieldSeqId="18" fieldPath="verseTitle"/>
+        <fields fieldSeqId="19" fieldPath="verseShortTitle"/>
+        <fields fieldSeqId="20" fieldPath="embedding"/>
+        <fields fieldSeqId="21" fieldPath="modelEnumId"/>
+    </dataDocuments>
+
+    <moqui.entity.feed.DataFeed dataFeedId="AiData" dataFeedTypeEnumId="DTFDTP_RT_PUSH" indexOnStartEmpty="Y"
+            feedName="AI Data" feedReceiveServiceName="org.moqui.search.SearchServices.index#DataDocuments"
+            feedDeleteServiceName="org.moqui.search.SearchServices.delete#DataDocument">
+        <documents dataDocumentId="AiTableEmbedding"/>
+        <documents dataDocumentId="AiMormonScriptures"/>
+    </moqui.entity.feed.DataFeed>
+
     <!-- Artifact group for all of the ai application via the App screen (the root screen for the app) -->
     <moqui.security.ArtifactGroup artifactGroupId="ai_APP" description="ai App (via root screen)"/>
     <moqui.security.ArtifactGroupMember artifactGroupId="ai_APP" artifactTypeEnumId="AT_XML_SCREEN"

@@ -57,4 +57,29 @@ along with this software (see the LICENSE.md file). If not, see
         </seed-data>
     </entity>
 
+    <entity entity-name="MormonScriptures" package="ai.sql">
+        <!-- volume_id,book_id,chapter_id,verse_id,volume_title,book_title,volume_long_title,book_long_title,volume_subtitle,book_subtitle,volume_short_title,book_short_title,volume_lds_url,book_lds_url,chapter_number,verse_number,scripture_text,verse_title,verse_short_title-->
+        <field name="volumeId" type="id" is-pk="true"/>
+        <field name="bookId" type="id" is-pk="true"/>
+        <field name="chapterId" type="id" is-pk="true"/>
+        <field name="verseId" type="id" is-pk="true"/>
+        <field name="volumeTitle" type="text-long"/>
+        <field name="bookTitle" type="text-long"/>
+        <field name="volumeLongTitle" type="text-long"/>
+        <field name="bookLongTitle" type="text-long"/>
+        <field name="volumeSubtitle" type="text-long"/>
+        <field name="bookSubtitle" type="text-long"/>
+        <field name="volumeShortTitle" type="text-long"/>
+        <field name="bookShortTitle" type="text-long"/>
+        <field name="volumeLdsUrl" type="text-long"/>
+        <field name="bookLdsUrl" type="text-long"/>
+        <field name="chapterNumber" type="number-integer"/>
+        <field name="verseNumber" type="number-integer"/>
+        <field name="scriptureText" type="text-long"/>
+        <field name="verseTitle" type="text-long"/>
+        <field name="verseShortTitle" type="text-long"/>
+        <field name="embedding" type="binary-very-long"/>
+        <field name="modelEnumId" type="id"/>
+    </entity>
+
 </entities>
